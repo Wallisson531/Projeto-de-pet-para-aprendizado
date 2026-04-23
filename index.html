@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Codinho — Pet Virtual do Programador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0d1117;
+    --bg2:        #161b22;
+    --bg3:        #21262d;
+    --border:     #30363d;
+    --border2:    #444c56;
+    --text:       #e6edf3;
+    --text2:      #8b949e;
+    --text3:      #6e7681;
+    --green:      #3fb950;
+    --green-dim:  #1a4020;
+    --purple:     #a5a0f8;
+    --purple-dim: #2a2660;
+    --amber:      #e3b341;
+    --amber-dim:  #3d2e00;
+    --blue:       #58a6ff;
+    --blue-dim:   #0d2a4a;
+    --red:        #f85149;
+    --font-mono:  'JetBrains Mono', monospace;
+    --font-ui:    'Space Grotesk', sans-serif;
+    --radius:     8px;
+    --radius-lg:  12px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  .header-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+  .header-title span { color: var(--green); }
+  .streak-badge {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--amber-dim);
+    color: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 99px;
+    padding: 3px 10px;
+  }
+
+  /* PET CARD */
+  .pet-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .pet-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%; transform: translateX(-50%);
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(63,185,80,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .level-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .level-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green);
+    border-radius: 99px;
+    padding: 3px 10px;
+    letter-spacing: 0.05em;
+  }
+  .xp-info {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .xp-info b { color: var(--text2); }
+
+  .pet-art {
+    font-size: 96px;
+    line-height: 1;
+    margin: 0.5rem 0;
+    display: block;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: default;
+    user-select: none;
+  }
+  .pet-art.bounce { transform: scale(1.35) rotate(-5deg); }
+
+  .pet-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin: 0.4rem 0 0.2rem;
+  }
+  .pet-mood {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* XP BAR */
+  .xp-bar-wrap {
+    margin-top: 1rem;
+    background: var(--bg3);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #56d364);
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+
+  /* STATS */
+  .stats-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .card-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text3);
+    margin-bottom: 0.75rem;
+  }
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .stat-row:last-child { margin-bottom: 0; }
+  .stat-name {
+    font-size: 12px;
+    color: var(--text2);
+    width: 130px;
+    flex-shrink: 0;
+  }
+  .stat-bar-bg {
+    flex: 1;
+    background: var(--bg3);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .stat-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s ease;
+  }
+  .stat-val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    width: 26px;
+    text-align: right;
+  }
+
+  /* ACTIONS */
+  .actions-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .action-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .action-btn:hover {
+    background: var(--bg);
+    border-color: var(--border2);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+  .action-btn:active { transform: scale(0.97); }
+  .action-btn .icon { font-size: 16px; }
+  .action-btn .xp-tag {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--green);
+    background: var(--green-dim);
+    padding: 2px 6px;
+    border-radius: 99px;
+  }
+
+  /* LOG */
+  .log-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .log-scroll {
+    max-height: 130px;
+    overflow-y: auto;
+  }
+  .log-scroll::-webkit-scrollbar { width: 4px; }
+  .log-scroll::-webkit-scrollbar-track { background: transparent; }
+  .log-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  .log-item {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-time { color: var(--text3); flex-shrink: 0; }
+  .log-msg { color: var(--text2); }
+  .log-empty {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    font-style: italic;
+  }
+
+  /* RESET */
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.15s;
+    display: block;
+    margin-left: auto;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* LEVEL UP overlay */
+  .levelup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .levelup-overlay.show { opacity: 1; pointer-events: all; }
+  .levelup-box {
+    background: var(--bg2);
+    border: 1px solid var(--green);
+    border-radius: var(--radius-lg);
+    padding: 2rem 3rem;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(63,185,80,0.2);
+  }
+  .levelup-art { font-size: 72px; display: block; margin-bottom: 0.5rem; }
+  .levelup-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+  }
+  .levelup-name { font-size: 24px; font-weight: 700; }
+  .levelup-close {
+    margin-top: 1.5rem;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    border-radius: var(--radius);
+    padding: 8px 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--green);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .levelup-close:hover { background: rgba(63,185,80,0.2); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div class="header-title">// <span>codinho</span>.pet</div>
+    <div class="streak-badge">🔥 streak: <span id="streak">0</span>d</div>
+  </div>
+
+  <!-- PET -->
+  <div class="pet-card">
+    <div class="level-row">
+      <span class="level-badge" id="level-badge">nível 1 · larva</span>
+      <span class="xp-info"><b id="xp-display">0</b> / <span id="xp-next">100</span> xp</span>
+    </div>
+    <span class="pet-art" id="pet-art">🥚</span>
+    <div class="pet-name" id="pet-name">Codinho</div>
+    <div class="pet-mood" id="pet-mood">dormindo... 💤</div>
+    <div class="xp-bar-wrap" style="margin-top: 1rem;">
+      <div class="xp-bar-fill" id="xp-bar" style="width: 0%;"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-card">
+    <div class="card-label">ATRIBUTOS</div>
+    <div class="stat-row">
+      <span class="stat-name">Consistência</span>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-consistency" style="width:0%; background: var(--green);"></div></div>
+      <span class="stat-val" id="val-consistency">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">Qualidade do código</span>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-quality" style="width:0%; background: var(--purple);"></div></div>
+      <span class="stat-val" id="val-quality">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">Variedade</span>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-variety" style="width:0%; background: var(--amber);"></div></div>
+      <span class="stat-val" id="val-variety">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-name">Documentação</span>
+      <div class="stat-bar-bg"><div class="stat-bar-fill" id="bar-docs" style="width:0%; background: var(--blue);"></div></div>
+      <span class="stat-val" id="val-docs">0</span>
+    </div>
+  </div>
+
+  <!-- AÇÕES -->
+  <div class="actions-card">
+    <div class="card-label">O QUE VOCÊ FEZ HOJE?</div>
+    <div class="actions-grid">
+      <button class="action-btn" onclick="doAction('commit')">
+        <span class="icon">📦</span> Fiz commits <span class="xp-tag">+15</span>
+      </button>
+      <button class="action-btn" onclick="doAction('test')">
+        <span class="icon">🧪</span> Escrevi testes <span class="xp-tag">+20</span>
+      </button>
+      <button class="action-btn" onclick="doAction('review')">
+        <span class="icon">👁️</span> Code review <span class="xp-tag">+18</span>
+      </button>
+      <button class="action-btn" onclick="doAction('docs')">
+        <span class="icon">📝</span> Documentei <span class="xp-tag">+12</span>
+      </button>
+      <button class="action-btn" onclick="doAction('learn')">
+        <span class="icon">📚</span> Aprendi algo <span class="xp-tag">+25</span>
+      </button>
+      <button class="action-btn" onclick="doAction('refactor')">
+        <span class="icon">♻️</span> Refatorei <span class="xp-tag">+18</span>
+      </button>
+      <button class="action-btn" onclick="doAction('deploy')">
+        <span class="icon">🚀</span> Deploy! <span class="xp-tag">+30</span>
+      </button>
+      <button class="action-btn" onclick="doAction('break')">
+        <span class="icon">☕</span> Tirei pausa <span class="xp-tag">+5</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-card">
+    <div class="card-label">DIÁRIO DE ATIVIDADES</div>
+    <div class="log-scroll" id="log-list">
+      <div class="log-empty">_ nenhuma atividade registrada ainda...</div>
+    </div>
+    <button class="reset-btn" onclick="resetPet()">resetar pet</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LEVEL UP -->
+<div class="levelup-overlay" id="levelup-overlay" onclick="closeLevelUp()">
+  <div class="levelup-box" onclick="event.stopPropagation()">
+    <span class="levelup-art" id="lu-art">🐣</span>
+    <div class="levelup-title">// LEVEL UP!</div>
+    <div class="levelup-name" id="lu-name">Filhote desbloqueado</div>
+    <button class="levelup-close" onclick="closeLevelUp()">continuar →</button>
+  </div>
+</div>
+
+<script>
+const LEVELS = [
+  { min: 0,    max: 100,  label: "nível 1 · larva",    art: "🥚",  moods: ["dormindo... 💤", "com fome... 😴"] },
+  { min: 100,  max: 250,  label: "nível 2 · filhote",  art: "🐣",  moods: ["acordando! 👀", "curioso 🐥"] },
+  { min: 250,  max: 500,  label: "nível 3 · aprendiz", art: "🐱",  moods: ["brincalhão 😸", "alerta 🐱"] },
+  { min: 500,  max: 900,  label: "nível 4 · hacker",   art: "🦊",  moods: ["focado 🦊", "no flow 🔥"] },
+  { min: 900,  max: 1500, label: "nível 5 · sênior",   art: "🦉",  moods: ["sábio 🦉", "imbatível ⚡"] },
+  { min: 1500, max: 9999, label: "nível 6 · lendário", art: "🐉",  moods: ["lendário 🐉", "IMPARÁVEL 💫"] },
+];
+
+const ACTIONS = {
+  commit:   { xp: 15, stats: { consistency: 10, quality: 5 },              msg: "commitou código 📦" },
+  test:     { xp: 20, stats: { quality: 15, consistency: 5 },               msg: "escreveu testes 🧪" },
+  review:   { xp: 18, stats: { quality: 10, variety: 8 },                   msg: "fez code review 👁️" },
+  docs:     { xp: 12, stats: { docs: 20 },                                  msg: "documentou código 📝" },
+  learn:    { xp: 25, stats: { variety: 15, quality: 5 },                   msg: "aprendeu algo novo 📚" },
+  refactor: { xp: 18, stats: { quality: 12, consistency: 6 },               msg: "refatorou código ♻️" },
+  deploy:   { xp: 30, stats: { consistency: 10, quality: 5, variety: 5 },   msg: "deploy realizado 🚀" },
+  break:    { xp: 5,  stats: { consistency: 5 },                            msg: "pausa saudável ☕" },
+};
+
+const STORAGE_KEY = 'codinho_v2';
+
+function defaultState() {
+  return { xp: 0, streak: 0, stats: { consistency: 0, quality: 0, variety: 0, docs: 0 }, log: [], lastDate: null };
+}
+
+let state = defaultState();
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) state = Object.assign(defaultState(), JSON.parse(saved));
+} catch(e) {}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function getLevelIndex(xp) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) return i;
+  }
+  return 0;
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function closeLevelUp() {
+  document.getElementById('levelup-overlay').classList.remove('show');
+}
+
+function render(prevLevel) {
+  const lvlIdx = getLevelIndex(state.xp);
+  const lvl = LEVELS[lvlIdx];
+  const nextLvl = LEVELS[Math.min(lvlIdx + 1, LEVELS.length - 1)];
+
+  document.getElementById('level-badge').textContent = lvl.label;
+  document.getElementById('pet-art').textContent = lvl.art;
+  document.getElementById('streak').textContent = state.streak;
+  document.getElementById('xp-display').textContent = state.xp;
+  document.getElementById('xp-next').textContent = nextLvl.max;
+  document.getElementById('pet-mood').textContent = lvl.moods[state.xp % lvl.moods.length];
+
+  const xpRange = lvl.max - lvl.min;
+  const xpProgress = state.xp - lvl.min;
+  const pct = Math.min(Math.round((xpProgress / xpRange) * 100), 100);
+  document.getElementById('xp-bar').style.width = pct + '%';
+
+  ['consistency','quality','variety','docs'].forEach(s => {
+    const v = Math.min(state.stats[s] || 0, 100);
+    document.getElementById('bar-' + s).style.width = v + '%';
+    document.getElementById('val-' + s).textContent = v;
+  });
+
+  const logEl = document.getElementById('log-list');
+  if (!state.log || state.log.length === 0) {
+    logEl.innerHTML = '<div class="log-empty">_ nenhuma atividade registrada ainda...</div>';
+  } else {
+    logEl.innerHTML = [...state.log].reverse().slice(0, 12).map(l =>
+      `<div class="log-item"><span class="log-time">${l.time}</span><span class="log-msg">${l.msg}</span></div>`
+    ).join('');
+  }
+
+  if (prevLevel !== undefined && lvlIdx > prevLevel) {
+    document.getElementById('lu-art').textContent = lvl.art;
+    document.getElementById('lu-name').textContent = lvl.label;
+    document.getElementById('levelup-overlay').classList.add('show');
+  }
+}
+
+function doAction(type) {
+  const a = ACTIONS[type];
+  const prevLevel = getLevelIndex(state.xp);
+
+  state.xp += a.xp;
+  Object.entries(a.stats).forEach(([k, v]) => {
+    state.stats[k] = Math.min((state.stats[k] || 0) + v, 100);
+  });
+
+  const now = new Date();
+  const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  if (!state.log) state.log = [];
+  state.log.push({ time, msg: a.msg + ' +' + a.xp + 'xp' });
+  if (state.log.length > 30) state.log = state.log.slice(-30);
+
+  const today = now.toDateString();
+  if (state.lastDate !== today) {
+    state.streak = (state.lastDate) ? state.streak + 1 : 1;
+    state.lastDate = today;
+  }
+
+  save();
+
+  const artEl = document.getElementById('pet-art');
+  artEl.classList.add('bounce');
+  setTimeout(() => artEl.classList.remove('bounce'), 400);
+
+  showToast('+ ' + a.xp + ' xp — ' + a.msg);
+  render(prevLevel);
+}
+
+function resetPet() {
+  if (!confirm('Resetar o Codinho? Todo o progresso será perdido.')) return;
+  state = defaultState();
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  render();
+  showToast('pet resetado. comece de novo! 🥚');
+}
+
+render();
+</script>
+</body>
+</html>
